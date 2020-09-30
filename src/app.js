@@ -4,7 +4,7 @@ const app = {};
 
 app.init = async () => {
     
-    app.initDb();
+    // app.initDb();
 
 }
 

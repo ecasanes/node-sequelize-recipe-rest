@@ -3,17 +3,15 @@ const helpers = require('./helpers');
 const sqlite3 = require('sqlite3');
 const { Sequelize } = require('sequelize');
 
-const ABS_PATH = path.join(__dirname, '../');
-const dbPath = path.join(ABS_PATH, `/db/${dbName}.db`);
-
-
-
 const dbName = 'recipe';
 let db;
 
+const ABS_PATH = path.join(__dirname, '../');
+const dbPath = path.join(ABS_PATH, `/db/${dbName}.db`);
+
 const database = {};
 
-database.open = async () => {
+database.open = () => {
 
     const sequelize = new Sequelize({
         dialect: 'sqlite',
@@ -23,13 +21,6 @@ database.open = async () => {
     return sequelize;
 
 }
-
-
-
-
-
-
-
 
 
 database.openOld = async () => {

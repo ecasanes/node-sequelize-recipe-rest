@@ -1,8 +1,8 @@
-const { DataTypes, Model } = require('sequelize');
+const { DataTypes, Model, Sequelize } = require('sequelize');
 const sqliteDB = require('../utils/sqlite');
 const sequelize = sqliteDB.open();
 
-class Recipe extends Model {
+class Item extends Model {
 
     someMethod() {
         
@@ -10,8 +10,8 @@ class Recipe extends Model {
 
 }
 
-Recipe.init({
-    recipe_id: {
+Item.init({
+    item_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
@@ -23,20 +23,13 @@ Recipe.init({
     description: {
         type: DataTypes.STRING
     },
-    recipe_order: {
-        type: DataTypes.INTEGER
-    },
     image_url: {
         type: DataTypes.STRING
-    },
-    is_pinned: {
-        type: DataTypes.INTEGER
     }
 },{
     sequelize,
-    tableName: 'recipe',
-    modelName: 'Recipe',
+    tableName: 'item',
     timestamps: false
 });
 
-module.exports = Recipe;
+module.exports = Item;
