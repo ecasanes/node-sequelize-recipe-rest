@@ -1,4 +1,4 @@
-const database = require('./utils/sqlite');
+const database = require('./utils/database');
 
 const app = {};
 
@@ -85,7 +85,7 @@ app.initDb = async () => {
         );    
     `;
 
-    await database.open();
+    const sequelize = await database.open();
 
     await database.queryRaw(createRecipeTableSQL);
     await database.queryRaw(createItemTableSQL);

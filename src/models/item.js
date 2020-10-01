@@ -1,6 +1,6 @@
 const { DataTypes, Model, Sequelize } = require('sequelize');
-const sqliteDB = require('../utils/sqlite');
-const sequelize = sqliteDB.open();
+const database = require('../utils/database');
+const sequelize = database.open();
 
 class Item extends Model {
 

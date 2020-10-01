@@ -1,10 +1,6 @@
-const { DataTypes, Model, Sequelize } = require('sequelize');
-const sqliteDB = require('../utils/sqlite');
-const sequelize = sqliteDB.open();
-
-const Recipe = require('./recipe')
-const Measurement = require('./measurement')
-const Item = require('./item');
+const { DataTypes, Model } = require('sequelize');
+const database = require('../utils/database');
+const sequelize = database.open();
 
 class RecipeItem extends Model {
 
@@ -20,27 +16,27 @@ RecipeItem.init({
         primaryKey: true,
         autoIncrement: true
     },
-    recipe_id: {
-        type: DataTypes.INTEGER,
-        references: {
-            model: Recipe,
-            key: 'recipe_id'
-        }
-    },
-    item_id: {
-        type: DataTypes.INTEGER,
-        references: {
-            model: Item,
-            key: 'item_id'
-        }
-    },
-    measurement_id: {
-        type: DataTypes.INTEGER,
-        references: {
-            model: Measurement,
-            key:'measurement_id'
-        }
-    },
+    // recipe_id: {
+    //     type: DataTypes.INTEGER,
+    //     references: {
+    //         model: Recipe,
+    //         key: 'recipe_id'
+    //     }
+    // },
+    // item_id: {
+    //     type: DataTypes.INTEGER,
+    //     // references: {
+    //     //     model: Item,
+    //     //     key: 'item_id'
+    //     // }
+    // },
+    // measurement_id: {
+    //     type: DataTypes.INTEGER,
+    //     // references: {
+    //     //     model: Measurement,
+    //     //     key:'measurement_id'
+    //     // }
+    // },
     image_url: {
         type: DataTypes.STRING
     },

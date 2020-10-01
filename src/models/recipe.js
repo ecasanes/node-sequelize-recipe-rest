@@ -1,6 +1,6 @@
-const { DataTypes, Model } = require('sequelize');
-const sqliteDB = require('../utils/sqlite');
-const sequelize = sqliteDB.open();
+const { DataTypes, Model, Sequelize } = require('sequelize');
+const database = require('../utils/database');
+const sequelize = database.open();
 
 class Recipe extends Model {
 

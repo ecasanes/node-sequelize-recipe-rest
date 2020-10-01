@@ -1,10 +1,8 @@
 const express = require('express');
 const helpers = require('../utils/helpers');
-const Recipe = require('../models/recipe');
-const Item = require('../models/item');
-const sqlite = require('../utils/sqlite');
-const RecipeItem = require('../models/recipe-item');
-const sequelize = sqlite.open();
+const database = require('../utils/database');
+const {Recipe, Item, Measurement, RecipeItem} = require('../models');
+const sequelize = database.open();
 
 const app = new express.Router();
 
@@ -41,12 +39,116 @@ app.get('/recipes/:id', async (req, res) => {
 // PUT - recipes/:id - update specific recipe by id
 app.put('/recipes/:id', async (req, res) => {
 
+    const body = req.body;
+
     try {
-        res.send({
-            recipe: {}
+
+        const result = await sequelize.transaction(async (t) => {
+
+            // FIXME: add measurement
+
+            const recipe = await Recipe.update({
+                name: body.name,
+                description: body.description,
+                recipe_order: body.recipe_order,
+                image_url: body.image_url,
+                is_pinned: body.is_pinned
+            }, {
+                transaction: t,
+                where: {
+                    recipe_id: body.recipe_id
+                }
+            });
+
+            const recipeID = recipe.recipe_id;
+            console.log('recipe_id: ', recipeID);
+
+            for (const item of body.items) {
+
+                let currentItem;
+
+                if(item.item_id !== null){
+                    
+                    currentItem = await Item.update({
+                        name: item.name,
+                        description: item.description,
+                        image_url: item.image_url
+                    }, {
+                        transaction: t,
+                        where: {
+                            item_id: item.item_id
+                        }
+                    });
+
+                }else{
+
+                    currentItem = await Item.create({
+                        name: item.name,
+                        description: item.description,
+                        image_url: item.image_url
+                    }, {
+                        transaction: t
+                    });
+
+                }
+
+                const itemID = currentItem.item_id;
+                console.log('item id: ', itemID);
+
+                let recipeItem;
+
+                if(item.recipe_item_id !== null){
+
+                    recipeItem = await RecipeItem.update({
+                        recipe_id: recipeID,
+                        item_id: itemID,
+                        measurement_id: null,
+                        image_url: item.image_url,
+                        quantity: item.quantity,
+                        recipe_item_order: item.recipe_item_order,
+                        alternative_of_id: item.alternative_of_id
+                    }, {
+                        transaction: t,
+                        where: {
+                            recipe_item_id: item.recipe_item_id
+                        }
+                    });
+
+                }else{
+
+                    recipeItem = await RecipeItem.create({
+                        recipe_id: recipeID,
+                        item_id: itemID,
+                        measurement_id: null,
+                        image_url: item.image_url,
+                        quantity: item.quantity,
+                        recipe_item_order: item.recipe_item_order,
+                        alternative_of_id: item.alternative_of_id
+                    }, {
+                        transaction: t
+                    });
+
+                }
+
+                const recipeItemID = recipeItem.recipe_item_id;
+                console.log('recipe item id: ', recipeItemID);
+
+            }
+
+            console.log('transaction successful. about to commit...');
+            
+            return res.status(201).send(recipe);
+
         });
-    } catch (e) {
-        helpers.log(e);
+
+    } catch (error) {
+
+        // If the execution reaches this line, an error occurred.
+        // The transaction has already been rolled back automatically by Sequelize!
+
+        console.log('an error occured with the transaction. rolling back...', error);
+        return res.status(400).send(error);
+
     }
 
 })
