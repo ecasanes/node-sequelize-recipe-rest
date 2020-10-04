@@ -40,6 +40,9 @@ app.get('/recipes/:id', async (req, res) => {
 app.put('/recipes/:id', async (req, res) => {
 
     const body = req.body;
+    const params = req.params;
+
+    const recipeID = params.id;
 
     try {
 
@@ -56,29 +59,55 @@ app.put('/recipes/:id', async (req, res) => {
             }, {
                 transaction: t,
                 where: {
-                    recipe_id: body.recipe_id
+                    recipe_id: recipeID
                 }
             });
 
-            const recipeID = recipe.recipe_id;
-            console.log('recipe_id: ', recipeID);
+            console.log('recipe: ', {recipe})
 
             for (const item of body.items) {
 
                 let currentItem;
 
                 if(item.item_id !== null){
-                    
-                    currentItem = await Item.update({
-                        name: item.name,
-                        description: item.description,
-                        image_url: item.image_url
-                    }, {
-                        transaction: t,
+
+                    const currentItemDetails = await Item.findOne({
                         where: {
                             item_id: item.item_id
                         }
                     });
+
+                    console.log('currentItemDetails: ', currentItemDetails);
+
+                    const itemWithSameUpdatedName = await Item.findOne({
+                        where: sequelize.where(sequelize.fn('lower', sequelize.col('name')), item.name.toLowerCase())
+                    });
+
+                    // means item is new and still not from the list
+                    if(!itemWithSameUpdatedName){
+
+                        currentItem = await Item.create({
+                            name: item.name,
+                            description: item.description,
+                            image_url: item.image_url
+                        }, {
+                            transaction: t
+                        });
+
+                    }else{
+
+                        currentItem = await Item.update({
+                            name: item.name,
+                            description: item.description,
+                            image_url: item.image_url
+                        }, {
+                            transaction: t,
+                            where: {
+                                item_id: item.item_id
+                            }
+                        });
+
+                    }
 
                 }else{
 
@@ -150,6 +179,8 @@ app.put('/recipes/:id', async (req, res) => {
         return res.status(400).send(error);
 
     }
+
+
 
 })
 
